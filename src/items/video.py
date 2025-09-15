@@ -38,6 +38,8 @@ class YouTubeVideo(YouTubeItem):
         self._views = 0
         self._likes = 0
 
+        self._duration = 0
+
         #self._qualities = []
         #self._available_countries = []
 
@@ -62,13 +64,16 @@ class YouTubeVideo(YouTubeItem):
 
         self._views = int(video_details.get("viewCount", "0"))
 
-        images = video_details.get("thumbnails", [])
+        images = video_details.get("thumbnail", {})
+        images = images.get("thumbnails", [])
+
         self._image = ""
         if len(images) > 0:
             last_image = images[-1]
             self._image = last_image["url"]
 
         self._likes = int(micro_format.get("likeCount", "0"))
+        self._duration = int(micro_format.get("lengthSeconds", "0"))
         release_date = micro_format.get("publishDate", None)
         if release_date:
             self._release_date = datetime.datetime.fromisoformat(release_date)
@@ -183,3 +188,9 @@ class YouTubeVideo(YouTubeItem):
         Get the release_date of the playlist.
         """
         return self._release_date
+    
+    def get_channel_url(self):
+        """
+        Get the URL of the channel
+        """
+        return f"https://www.youtube.com/channel/{self._channel_id}"
